@@ -1,10 +1,22 @@
 <script lang="ts" setup>
 import LoaderSpinner from 'src/shared/components/LoaderSpinner.vue';
 import FilterSelector from '../components/filter-selector/FilterSelector.vue';
+import { ref } from 'vue';
 import IssueList from '../components/issue-list/IssueList.vue';
 import useIssues from '../composables/useIssues';
+import FloatingButtons from 'src/shared/components/FloatingButtons.vue';
+import { Size } from '../interfaces/button';
+import NewIssueDialog from '../components/NewIssueDialog.vue';
+import useLabels from '../composables/useLabels';
 
 const { issuesQuery } = useIssues();
+const { labelsQuery } = useLabels();
+
+const isOpen = ref<boolean>(false);
+
+const openDialog = () => {
+  isOpen.value = true;
+};
 </script>
 
 <template>
@@ -24,6 +36,22 @@ const { issuesQuery } = useIssues();
       <IssueList v-else :issues="issuesQuery.data?.value || []" />
     </div>
   </div>
+  <FloatingButtons
+    :buttons="[
+      {
+        icon: 'add',
+        color: 'primary',
+        size: Size.lg,
+        action: openDialog,
+      },
+    ]"
+  />
+  <NewIssueDialog
+    :is-open-prop="isOpen"
+    v-if="labelsQuery.data"
+    :labels-prop="labelsQuery.data.value?.map((label) => label.name) || []"
+    @on-close="isOpen = false"
+  />
 </template>
 
 <style scoped></style>
